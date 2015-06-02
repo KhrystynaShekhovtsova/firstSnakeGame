@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="style.css">
+		<script src="jquery-1.10.1.js" type="text/javascript"></script>
+
+		<title>task #2</title>
+	</head>
+	<body>
+		
+		<div class="container">
+			<div class="snake"></div>
+			<div class="food"></div>
+		</div>
+		<script>
+			$(document).ready(function(){
+				var length = 15;//snake length
+				var snake_cell = $(".snake").last();
+				var direction = "right";
+				var snakeArr = [snake_cell];
+				var food = $(".food").last();
+				
+				var head_margin = snake_cell.width() * (length - 1);
+
+				for(i = 1; i < length; i++) {					
+					var new_cell = snake_cell.clone().insertAfter(snake_cell);
+					var cell_margin = head_margin - snake_cell.width() * i;
+					new_cell.css("left", cell_margin);
+					snakeArr.push(new_cell);
+				}
+
+				snake_cell.addClass("head").css("left", head_margin);
+
+				/*  1. визначаємо координати для нової голови на основі старих координат голови і дірекшину
+					2. а тоді ці координати виставляємо останньому елементу масива
+					3. забираємо клас хед у старої голови
+					4. даємо клас хед новій голові
+					5. останній елемент поставили першим елементом масиву */
+
+				window.move_snake = function () {
+					var new_position;
+					var old_head = snakeArr[0];
+					var new_head = snakeArr[snakeArr.length - 1].clone().insertAfter(old_head);
+					new_head.css("left", old_head.position().left);
+					new_head.css("top", old_head.position().top);
+
+					switch(direction) {
+						case "right":
+							new_position = old_head.position().left + old_head.width();
+							if(new_position <= old_head.parent().width() - old_head.width()){
+								new_head.css("left", new_position);
+							}else {
+								console.log("game over");
+							} 
+						    break;
+						case "down":
+							new_position = old_head.position().top + old_head.height();
+							if(new_position <= old_head.parent().height() - old_head.height()){
+								new_head.css("top", new_position); 
+							}else {
+								console.log("game over");
+							}
+						    break;
+						case "left":
+							new_position = old_head.position().left - old_head.width();
+							if(new_position >= 0){
+								new_head.css("left", new_position); 
+							}else {
+								console.log("game over!");
+							}
+						    break;
+						case "up":
+							new_position = old_head.position().top - old_head.height();
+							if(new_position >= 0) {
+								new_head.css("top", new_position); 
+							}else {
+								console.log("game over!");
+							}
+						    break;
+					}
+					old_head.removeClass("head");
+					new_head.addClass("head");
+					snakeArr.unshift(new_head);
+					if(eat_itself()) {
+						clearInterval(move);
+						alert("game over!");
+					}
+
+					if(elems_overlay(food, new_head)){
+						place_food();
+					}else {
+						snakeArr.pop().remove();
+					}
+					
+					old_direction = direction;
+				}
+				place_food();
+
+				var interval = 100;
+				var move = setInterval(move_snake, interval);
+
+				var old_direction = direction;
+				$(document).keydown(function(e) {
+					console.log("keydown");
+	  				switch(e.keyCode){
+	  					case 37:
+	  						direction = "left";
+	  						break;
+	  					case 38:
+	  						direction = "up";
+	  						break;
+	  					case 39:
+	  						direction = "right";
+	  						break;
+	  					case 40:
+	  						direction = "down";
+	  						break;
+	  				}
+	  				if(direction == "left" && old_direction == "right" 
+	  				   || direction == "right" && old_direction == "left"
+	  				   || direction == "up" && old_direction == "down"
+	  				   || direction == "down" && old_direction == "up"){
+                          direction = old_direction;
+	  				}
+				});
+
+				function eat_itself() {
+						
+						for(i = 1; i < snakeArr.length; i++){
+
+							if(elems_overlay(snakeArr[0], snakeArr[i])){
+								return true;
+							}
+						}
+						return false;
+					}
+
+				function elems_overlay(elem1, elem2) {
+					var elem1_pos = elem1.position(),
+						elem1_left = elem1_pos.left,
+						elem1_right = elem1_left + elem1.width() - 1,
+						elem1_top = elem1_pos.top,
+						elem1_bottom = elem1_top + elem1.height() - 1,
+						elem2_pos = elem2.position(),
+						elem2_left = elem2_pos.left,
+						elem2_right = elem2_left + elem2.width() - 1,
+						elem2_top = elem2_pos.top,
+						elem2_bottom = elem2_top + elem2.height() - 1;
+
+						if( 
+							(elem1_left >= elem2_left && elem1_left <= elem2_right
+								|| elem1_right >= elem2_left && elem1_right <= elem2_right)
+							&&
+							(elem1_top >= elem2_top && elem1_top <= elem2_bottom
+								|| elem1_bottom >= elem2_top && elem1_bottom <= elem2_bottom)
+							) {
+							return true;
+						}
+					return false;
+				}
+
+				function place_food() {
+					while(true) {
+						food.css("left", Math.round((Math.random() * (500 - food.width() ))/10)*10);
+						food.css("top", Math.round((Math.random() * (500 - food.height() ))/10)*10);
+						
+						for(i = 0; i < snakeArr.length; i++){
+							if(elems_overlay(food, snakeArr[i])) {
+								continue;
+							}
+						}
+						return;
+					}
+				}
+
+			});
+		</script>
+	</body>
+</html>

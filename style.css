@@ -1,0 +1,31 @@
+.container {
+	border: 1px solid green;
+	background-color: #b4d214;
+	width: 500px;
+	height: 500px;
+	margin: auto;
+	left: 0;
+	top: 0;
+	right: 0;
+	position: relative;
+}
+.snake {
+	width: 10px;
+	height: 10px;
+	/*left: 20px;*/
+	background-color: #945e0c;
+	display: inline-block;
+	position: absolute;
+	border-radius: 3.5px;
+}
+.head {
+	background-color: #311D02;
+	border-radius: 5px;
+}
+.food {
+	width: 10px;
+	height: 10px;
+	background-color: #FD0808;
+	position: absolute;
+	display: inline-block;
+}
